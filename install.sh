@@ -23,12 +23,11 @@ secret_or_generate() {
   read -r -s -p "$label（留空自动生成）: " value </dev/tty
   echo
   printf "%s" "${value:-$(openssl rand -hex 32)}"
+}
 printf "%b\n" "${C_GREEN}  1) 先安装小雅${C_RESET}"
 printf "%b\n" "${C_GREEN}  2) 快速安装 HiMediaX + 小雅控制器${C_RESET}"
 printf "%b\n" "${C_GREEN}  3) 只安装 HiMediaX${C_RESET}"
 printf "%b\n" "${C_GREEN}  4) 只安装小雅控制器${C_RESET}"
-printf "%b\n" "${C_GREEN}  2) 只安装 HiMediaX${C_RESET}"
-printf "%b\n" "${C_GREEN}  3) 只安装小雅控制器${C_RESET}"
 read -r -p "输入选项 [1]: " choice </dev/tty
 choice="${choice:-1}"
 case "$choice" in 2) mode=3 ;; 3) mode=1 ;; 4) mode=2 ;; *) echo "无效选项。" >&2; exit 1 ;; esac

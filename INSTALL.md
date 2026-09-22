@@ -54,3 +54,12 @@ docker compose --env-file .env -f compose.full.yaml up -d
 ```
 
 镜像同时提供 `linux/amd64` 和 `linux/arm64`。
+
+
+安装脚本会自动生成缓存版本并刷新 Compose 模板，不需要手动添加 v 参数。
+
+Docker Hub 安装：
+curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh | sudo bash
+
+镜像代理安装：
+curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh | sudo env HIMEDIAX_MIRROR=https://gh-proxy.org bash

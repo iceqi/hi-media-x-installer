@@ -15,6 +15,8 @@ docker compose up -d
 
 主程序镜像：`iceqi/hi-media-x:latest`。Controller 和 GuessIt 使用独立 Compose 文件按需启用。
 
+官方镜像同时提供 `linux/amd64` 和 `linux/arm64`，Docker 会根据主机架构自动选择对应镜像。
+
 ## 更新
 
 ```bash
@@ -25,4 +27,3 @@ docker compose up -d
 ## Self-hosted Runner
 
 在 GitHub 仓库 Settings → Actions → Runners 中添加 Linux x64 runner，并给三 个私有源码仓库配置同名 runner 标签 `self-hosted`, `linux`, `x64`。工作流会自动构建并推送 Docker Hub 镜像。
-

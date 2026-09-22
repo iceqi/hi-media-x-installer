@@ -16,7 +16,6 @@ services:
       HIMEDIAX_CONTROLLER_URL: "${HIMEDIAX_CONTROLLER_URL:-http://host.docker.internal:19090}"
       HIMEDIAX_CONTROLLER_TOKEN: "${HIMEDIAX_CONTROLLER_TOKEN:-}"
       HIMEDIAX_JWT_SECRET: "${HIMEDIAX_JWT_SECRET:?set HIMEDIAX_JWT_SECRET}"
-      HIMEDIAX_GUESSIT_URL: "${HIMEDIAX_GUESSIT_URL:-http://host.docker.internal:18084}"
       HIMEDIAX_TMDB_API_KEY: "${HIMEDIAX_TMDB_API_KEY:-}"
     extra_hosts:
       - "host.docker.internal:host-gateway"

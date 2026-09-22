@@ -160,3 +160,12 @@ HIMEDIAX_IMAGE_REGISTRY=gh-proxy.org bash install.sh
 curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh | sudo env HIMEDIAX_MIRROR=https://gh-proxy.org bash
 
 不设置时默认使用 docker.io。镜像代理必须支持直接访问 iceqi/hi-media-x 和 iceqi/hi-media-x-controller 镜像路径。
+
+
+安装脚本会自动生成缓存版本并刷新 Compose 模板，不需要手动添加 v 参数。
+
+Docker Hub 安装：
+curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh | sudo bash
+
+镜像代理安装：
+curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh | sudo env HIMEDIAX_MIRROR=https://gh-proxy.org bash

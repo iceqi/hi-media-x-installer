@@ -1,9 +1,0 @@
-services:
-  hi-media-x-guessit:
-    image: ${HIMEDIAX_GUESSIT_IMAGE:-iceqi/hi-media-x-guessit:latest}
-    container_name: hi-media-x-guessit
-    environment:
-      HIMEDIAX_GUESSIT_ADDRESS: ":18084"
-    ports:
-      - "18084:18084"
-    restart: unless-stopped

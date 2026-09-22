@@ -1,4 +1,4 @@
-# HiMediaX 全量 Docker Compose 模板
+# HiMediaX 全量 Docker Compose 模板（主程序 + Controller）
 services:
   hi-media-x:
     image: ${HIMEDIAX_IMAGE:-iceqi/hi-media-x:latest}
@@ -12,7 +12,6 @@ services:
       HIMEDIAX_JWT_SECRET: "${HIMEDIAX_JWT_SECRET:?set HIMEDIAX_JWT_SECRET}"
       HIMEDIAX_CONTROLLER_URL: "${HIMEDIAX_CONTROLLER_URL:-http://hi-media-x-controller:19090}"
       HIMEDIAX_CONTROLLER_TOKEN: "${HIMEDIAX_CONTROLLER_TOKEN:?set HIMEDIAX_CONTROLLER_TOKEN}"
-      HIMEDIAX_GUESSIT_URL: "${HIMEDIAX_GUESSIT_URL:-http://hi-media-x-guessit:18084}"
     ports:
       - "${HIMEDIAX_HTTP_PORT:-18080}:8080"
       - "${HIMEDIAX_WEBDAV_PORT:-18081}:8081"
@@ -22,7 +21,6 @@ services:
       - "${HIMEDIAX_LIBRARY_DIR_HOST:?set HIMEDIAX_LIBRARY_DIR_HOST}:/app/library"
     depends_on:
       - hi-media-x-controller
-      - hi-media-x-guessit
     restart: unless-stopped
     networks: [himediax]
   hi-media-x-controller:
@@ -44,15 +42,6 @@ services:
       - "${HIMEDIAX_XIAOYA_CONFIG_DIR_HOST:?set HIMEDIAX_XIAOYA_CONFIG_DIR_HOST}:/etc/himedia/config:ro"
       - "${HIMEDIAX_CONTROLLER_DIR:?set HIMEDIAX_CONTROLLER_DIR}:/controller:ro"
       - /var/run/docker.sock:/var/run/docker.sock
-    restart: unless-stopped
-    networks: [himediax]
-  hi-media-x-guessit:
-    image: ${HIMEDIAX_GUESSIT_IMAGE:-iceqi/hi-media-x-guessit:latest}
-    container_name: ${HIMEDIAX_GUESSIT_CONTAINER_NAME:-hi-media-x-guessit}
-    environment:
-      HIMEDIAX_GUESSIT_ADDRESS: ":18084"
-    ports:
-      - "${HIMEDIAX_GUESSIT_PORT:-18084}:18084"
     restart: unless-stopped
     networks: [himediax]
 networks:

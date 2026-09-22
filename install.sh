@@ -5,6 +5,13 @@ cd "$INSTALL_DIR"
 command -v docker >/dev/null 2>&1 || { echo "需要先安装 Docker。" >&2; exit 1; }
 docker compose version >/dev/null 2>&1 || { echo "需要 Docker Compose v2。" >&2; exit 1; }
 command -v openssl >/dev/null 2>&1 || { echo "需要 openssl。" >&2; exit 1; }
+command -v curl >/dev/null 2>&1 || { echo "需要 curl。" >&2; exit 1; }
+RAW_BASE="https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main"
+for file in compose.full.yaml docker-compose.yml compose.controller.yaml; do
+  if [ ! -f "$INSTALL_DIR/$file" ]; then
+    curl -fsSL "$RAW_BASE/$file" -o "$INSTALL_DIR/$file"
+  fi
+done
 prompt() {
   local label="$1" default="${2:-}" value
   read -r -p "$label [$default]: " value
@@ -25,7 +32,6 @@ choice="${choice:-1}"
 case "$choice" in 1) mode=3 ;; 2) mode=1 ;; 3) mode=2 ;; *) echo "无效选项。" >&2; exit 1 ;; esac
 umask 077
 : > "$INSTALL_DIR/.env"
-
 if [ "$mode" = 1 ] || [ "$mode" = 3 ]; then
   data_dir=$(prompt "数据目录" "$INSTALL_DIR/data")
   library_dir=$(prompt "媒体库目录" "$INSTALL_DIR/library")
@@ -43,7 +49,6 @@ if [ "$mode" = 1 ] || [ "$mode" = 3 ]; then
     echo "HIMEDIAX_JWT_SECRET=$jwt_secret"
   } >> "$INSTALL_DIR/.env"
 fi
-
 if [ "$mode" = 2 ] || [ "$mode" = 3 ]; then
   xiaoya_data=$(prompt "小雅数据目录" "$INSTALL_DIR/xiaoya-data")
   config_dir=$(prompt "HiMediaX 配置目录" "$INSTALL_DIR/config")
@@ -71,7 +76,6 @@ if [ "$mode" = 2 ] || [ "$mode" = 3 ]; then
     echo "HIMEDIAX_ADVERTISED_ADDRESSES=http://$controller_ip:$controller_port"
   } >> "$INSTALL_DIR/.env"
 fi
-
 case "$mode" in
   1) compose_file="$INSTALL_DIR/docker-compose.yml" ;;
   2) compose_file="$INSTALL_DIR/compose.controller.yaml" ;;

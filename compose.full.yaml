@@ -39,7 +39,6 @@ services:
     volumes:
       - "${HIMEDIAX_XIAOYA_DATA_DIR:?set HIMEDIAX_XIAOYA_DATA_DIR}:/xiaoya"
       - "${HIMEDIAX_XIAOYA_CONFIG_DIR_HOST:?set HIMEDIAX_XIAOYA_CONFIG_DIR_HOST}:/etc/himedia/config:ro"
-      - "${HIMEDIAX_CONTROLLER_DIR:?set HIMEDIAX_CONTROLLER_DIR}:/controller:ro"
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
     networks: [himediax]

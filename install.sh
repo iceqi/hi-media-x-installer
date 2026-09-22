@@ -8,7 +8,7 @@ docker compose version >/dev/null 2>&1 || { echo "需要 Docker Compose v2。" >
 command -v openssl >/dev/null 2>&1 || { echo "需要 openssl。" >&2; exit 1; }
 command -v curl >/dev/null 2>&1 || { echo "需要 curl。" >&2; exit 1; }
 RAW_BASE="https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main"
-for file in compose.full.yaml docker-compose.yml compose.controller.yaml; do
+for file in compose.full.yaml docker-compose.yml compose.controller.yaml xiaoya.yml; do
   if [ ! -f "$INSTALL_DIR/$file" ]; then
     curl -fsSL "$RAW_BASE/$file" -o "$INSTALL_DIR/$file"
   fi
@@ -30,7 +30,7 @@ printf "%b\n" "${C_GREEN}  2) 只安装 HiMediaX${C_RESET}"
 printf "%b\n" "${C_GREEN}  3) 只安装小雅控制器${C_RESET}"
 read -r -p "输入选项 [1]: " choice </dev/tty
 choice="${choice:-1}"
-case "$choice" in 1) mode=3 ;; 2) mode=1 ;; 3) mode=2 ;; *) echo "无效选项。" >&2; exit 1 ;; esac
+case "$choice" in 1) mode=4 ;; 2) mode=3 ;; 3) mode=1 ;; 4) mode=2 ;; *) echo "无效选项。" >&2; exit 1 ;; esac
 umask 077
 : > "$INSTALL_DIR/.env"
 if [ "$mode" = 1 ] || [ "$mode" = 3 ]; then

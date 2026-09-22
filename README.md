@@ -144,3 +144,19 @@ GuessIt 镜像：
 ```text
 iceqi/hi-media-x-guessit:latest
 ```
+
+## 镜像代理
+
+安装脚本支持通过环境变量指定镜像代理，代理地址可以带或不带协议头：
+
+HIMEDIAX_MIRROR=https://proxy.151513.xyz bash install.sh
+
+也可以使用：
+
+HIMEDIAX_IMAGE_REGISTRY=proxy.151513.xyz bash install.sh
+
+直接远程安装：
+
+sudo env HIMEDIAX_MIRROR=https://proxy.151513.xyz bash <(curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh)
+
+不设置时默认使用 docker.io。镜像代理必须支持直接访问 iceqi/hi-media-x 和 iceqi/hi-media-x-controller 镜像路径。

@@ -1,6 +1,6 @@
 services:
   hi-media-x:
-    image: ${HIMEDIAX_IMAGE:-iceqi/hi-media-x:latest}
+    image: ${HIMEDIAX_IMAGE:-${HIMEDIAX_IMAGE_REGISTRY:-docker.io}/iceqi/hi-media-x:latest}
     container_name: ${HIMEDIAX_CONTAINER_NAME:-hi-media-x}
     environment:
       HIMEDIAX_DATA_ROOT: /app/data

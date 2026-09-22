@@ -1,172 +1,98 @@
 # HiMediaX 安装器
 
-HiMediaX 是面向媒体本地化和管理的 Docker 化服务。用户只需要准备 Docker，不需要安装 Go、Node.js 或 Python。
-
-本仓库是公开的用户安装入口，不包含 HiMediaX 主程序源码。
+本仓库是 HiMediaX 的公开安装入口，只包含安装脚本、Docker Compose 模板和用户文档，不包含主程序源码。
 
 ## 一键安装
 
 建议在专用目录中执行：
 
 ```bash
-sudo mkdir -p /opt/himediax
-cd /opt/himediax
+sudo mkdir -p /opt/himediax-installer
+cd /opt/himediax-installer
 curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh | sudo bash
 ```
 
-安装脚本会自动下载 Compose 模板并显示菜单：
+脚本会刷新本仓库中的 Compose 模板，然后显示五种安装方式：
 
 ```text
-1) 先安装小雅
-2) 快速安装 HiMediaX + 小雅控制器
-3) 只安装 HiMediaX
+1) 全新安装：小雅 + HiMediaX + 小雅控制器
+2) 只安装 HiMediaX
+3) 安装小雅 + 小雅控制器
 4) 只安装小雅控制器
+5) 只安装小雅
 ```
 
-直接回车默认选择第 1 项。选择第 1 项只安装小雅，完成后再次运行脚本选择第 2 项安装 HiMediaX 和小雅控制器。
+脚本不接受命令行参数。可交互修改所有探测值；设置 `HIMEDIAX_ASSUME_YES=1` 时跳过确认提示。
 
-安装目录默认是执行命令时的当前目录。脚本会在该目录生成：
+## 安装行为
+
+- 全新安装按“小雅 → HiMediaX → Controller”顺序执行。
+- Controller 安装前必须检测到可用的小雅容器、`/data` 挂载、WebDAV 端口和 HiMediaX 健康端点。
+- Controller Token 由安装器生成并保存在 `/opt/hi-media-x-controller/controller.env`，权限为 `0600`。
+- Controller 启动后主动向 HiMediaX 注册；HiMediaX 通过随机挑战反向确认 Controller 和 WebDAV 地址。
+- 重复安装会复用已经生成的 JWT 密钥和 Controller Token。
+- GuessIt 是可选独立服务，不参与 HiMediaX readiness，也不在五项菜单中自动安装。
+
+默认配置目录：
+
+| 组件 | 默认目录 | 环境文件 |
+| --- | --- | --- |
+| HiMediaX | `/opt/hi-media-x` | `himediax.env` |
+| Controller | `/opt/hi-media-x-controller` | `controller.env` |
+| 小雅 | `/opt/xiaoya` | `xiaoya.env` |
+
+## 已有服务场景
+
+选择“只安装小雅控制器”时，脚本会：
+
+1. 枚举当前主机的小雅容器，优先选择 `xiaoya-alist`。
+2. 校验容器挂载目录和实际发布的 WebDAV 端口。
+3. 自动查找本机 HiMediaX；未找到时要求输入外部 HiMediaX 地址。
+4. 要求确认当前主机可供 HiMediaX 访问的 IPv4 地址。
+5. 生成 Controller Token、启动 Controller 并等待自动注册。
+
+## 更新
+
+重新运行一键安装脚本并选择对应组件即可。安装器会先拉取：
 
 ```text
-.env
-compose.full.yaml
-docker-compose.yml
-compose.controller.yaml
+iceqi/hi-media-x:latest
+iceqi/hi-media-x-controller:latest
 ```
 
-## 安装选项
-
-### 1. 快速安装
-
-一次启动：
-
-- HiMediaX 主程序
-- 小雅控制器
-
-脚本会询问数据目录、媒体库目录、端口、JWT 密钥和小雅控制器 Token。密钥留空时自动生成强随机值。
-
-### 2. 只安装 HiMediaX
-
-适合小雅控制器已经部署在其他服务器的场景。主程序使用 `docker-compose.yml`。
-
-### 3. 只安装小雅控制器
-
-脚本会额外询问：
-
-- HiMediaX 服务地址，例如 `http://192.168.1.100:18080`
-- 已经在 HiMediaX 中使用的小雅控制器 Token
-
-脚本会自动探测当前服务器 IP，并设置小雅控制器回调地址和对外通告地址。控制器与 HiMediaX 使用相同 Token 时才能完成认证。
-
-## 手动 Compose
-
-默认全量部署：
+镜像同时支持 `linux/amd64` 和 `linux/arm64`。也可以在组件目录使用其环境文件和本仓库模板手动更新：
 
 ```bash
-docker compose --env-file .env -f compose.full.yaml pull
-docker compose --env-file .env -f compose.full.yaml up -d
-docker compose --env-file .env -f compose.full.yaml ps
+docker compose --env-file /opt/hi-media-x/himediax.env -f docker-compose.yml pull
+docker compose --env-file /opt/hi-media-x/himediax.env -f docker-compose.yml up -d
+
+docker compose --env-file /opt/hi-media-x-controller/controller.env -f compose.controller.yaml pull
+docker compose --env-file /opt/hi-media-x-controller/controller.env -f compose.controller.yaml up -d
 ```
 
-只部署主程序：
-
-```bash
-docker compose --env-file .env -f docker-compose.yml pull
-docker compose --env-file .env -f docker-compose.yml up -d
-```
-
-只部署小雅控制器：
-
-```bash
-docker compose --env-file .env -f compose.controller.yaml pull
-docker compose --env-file .env -f compose.controller.yaml up -d
-```
-
-## GuessIt（可选）
-
-GuessIt 暂时不属于默认安装内容。需要时手动执行：
+## 可选 GuessIt
 
 ```bash
 docker compose -f compose.guessit.yaml pull
 docker compose -f compose.guessit.yaml up -d
 ```
 
-## 更新
-
-在安装目录执行：
-
-```bash
-docker compose --env-file .env -f compose.full.yaml pull
-docker compose --env-file .env -f compose.full.yaml up -d
-docker compose --env-file .env -f compose.full.yaml ps
-```
-
-单独部署模式请替换为实际使用的 Compose 文件。
-
-## 端口和目录
-
-默认端口：
-
-| 用途 | 默认端口 |
-| --- | ---: |
-| HiMediaX 管理页面 | 18080 |
-| HiMediaX WebDAV | 18081 |
-| HiMediaX 播放代理 | 18096 |
-| 小雅控制器 | 19090 |
-| GuessIt（可选） | 18084 |
-
-脚本会交互询问宿主机目录。不要把包含敏感配置的 `.env` 提交到公开仓库。
-
-## 镜像架构
-
-官方镜像支持：
-
-```text
-linux/amd64
-linux/arm64
-```
-
-Docker 会根据服务器架构自动拉取对应镜像。
-
-主程序镜像：
-
-```text
-iceqi/hi-media-x:latest
-```
-
-小雅控制器镜像：
-
-```text
-iceqi/hi-media-x-controller:latest
-```
-
-GuessIt 镜像：
-
-```text
-iceqi/hi-media-x-guessit:latest
-```
+默认镜像为 `iceqi/hi-media-x-guessit:latest`。
 
 ## 镜像代理
 
-安装脚本支持通过环境变量指定镜像代理，代理地址可以带或不带协议头：
+设置 `HIMEDIAX_IMAGE_REGISTRY` 可以替换 Compose 使用的镜像注册表，例如：
 
-HIMEDIAX_MIRROR=https://gh-proxy.org bash install.sh
+```bash
+curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh |
+  sudo env HIMEDIAX_IMAGE_REGISTRY=gh-proxy.org/docker bash
+```
 
-也可以使用：
+代理必须能够直接访问 `iceqi/hi-media-x` 和 `iceqi/hi-media-x-controller` 路径。
 
-HIMEDIAX_IMAGE_REGISTRY=gh-proxy.org bash install.sh
+## 安全说明
 
-直接远程安装：
-
-curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh | sudo env HIMEDIAX_MIRROR=https://gh-proxy.org bash
-
-不设置时默认使用 docker.io。镜像代理必须支持直接访问 iceqi/hi-media-x 和 iceqi/hi-media-x-controller 镜像路径。
-
-
-安装脚本会自动生成缓存版本并刷新 Compose 模板，不需要手动添加 v 参数。
-
-Docker Hub 安装：
-curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh | sudo bash
-
-镜像代理安装：
-curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh | sudo env HIMEDIAX_MIRROR=https://gh-proxy.org bash
+- 不要提交安装生成的 `*.env`、JWT 密钥或 Controller Token。
+- 安装目录和环境文件分别限制为 `0700` 和 `0600`。
+- Controller 需要挂载 Docker Socket，只应部署在可信主机。
+- HiMediaX 主程序与 Controller 可以分开部署；Controller 不参与主程序 readiness。

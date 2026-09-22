@@ -1,65 +1,59 @@
 # HiMediaX 安装说明
 
-## 一键安装
+## 前置条件
 
-在目标服务器执行：
+目标服务器需要：
+
+- Docker Engine
+- Docker Compose v2
+- Bash、curl
+- 可访问 Docker Hub 或配置的镜像代理
+
+## 执行安装
 
 ```bash
+sudo mkdir -p /opt/himediax-installer
+cd /opt/himediax-installer
 curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh | sudo bash
 ```
 
-脚本默认使用当前执行目录作为安装目录。建议先进入专用目录：
+安装脚本会下载最新 Compose 模板，并提供以下菜单：
 
-```bash
-sudo mkdir -p /opt/himediax
-cd /opt/himediax
-curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh | sudo bash
-```
-
-脚本会自动下载 Compose 模板，然后显示菜单：
-
-1. 快速安装 HiMediaX + 小雅控制器
+1. 全新安装：小雅 + HiMediaX + 小雅控制器
 2. 只安装 HiMediaX
-3. 只安装小雅控制器
+3. 安装小雅 + 小雅控制器
+4. 只安装小雅控制器
+5. 只安装小雅
 
-默认直接回车选择第 1 项。
+全新安装时，脚本依次验证小雅、HiMediaX 和 Controller。Controller Token 自动生成，无需预先在 HiMediaX 中手工配置。
 
-## 配置说明
+## Controller 自动注册
 
-脚本会交互询问：
+Controller 启动时向 `POST /api/v1/controller/register` 提交自身公开地址，并通过请求头传递安装器生成的 Token。HiMediaX 随后反向调用 Controller 的挑战接口；挑战值、容器信息和 WebDAV 地址全部有效后才原子保存绑定。
 
-- 数据目录和媒体库目录
-- 管理端、WebDAV、播放代理端口
-- 小雅数据目录、配置目录和小雅控制器工作目录
-- HiMediaX 服务地址（单独安装小雅控制器时）
-- JWT 密钥和小雅控制器 Token
+重新注册不会覆盖管理员在 HiMediaX 页面修改过的 WebDAV账号密码。更换 Controller 前应先在管理端解除原绑定。
 
-留空密钥时会使用 `openssl rand -hex 32` 自动生成。生成的 `.env` 位于当前安装目录，并设置为仅当前用户可读写。
+## 配置文件
 
-单独安装小雅控制器时，必须输入已经运行的 HiMediaX 服务地址和已有的小雅控制器 Token。脚本会自动探测控制器服务器 IP，并写入回调地址。
+- `/opt/hi-media-x/himediax.env`：HiMediaX 路径、端口和 JWT 密钥。
+- `/opt/hi-media-x-controller/controller.env`：Controller Token、公开地址、小雅目录和服务端口。
+- `/opt/xiaoya/xiaoya.env`：小雅容器、数据目录和端口。
 
-## 可选 GuessIt
+环境文件权限为 `0600`。重新运行安装脚本时会复用已有的随机密钥。
 
-GuessIt 暂不默认安装。如需启用：
+## 健康检查
 
-```bash
-docker compose -f compose.guessit.yaml pull
-docker compose -f compose.guessit.yaml up -d
+HiMediaX 安装成功必须同时满足：
+
+```text
+GET /api/health/live  -> alive
+GET /api/health/ready -> ready
 ```
+
+Controller 独立部署，不参与上述 readiness。
 
 ## 更新
 
-```docker compose --env-file .env -f compose.full.yaml pull
-docker compose --env-file .env -f compose.full.yaml up -d
-```
+重新运行安装脚本，或使用对应环境文件执行 `docker compose pull` 和 `docker compose up -d`。主程序与 Controller 官方镜像均提供 `linux/amd64` 和 `linux/arm64`。
 
-镜像同时提供 `linux/amd64` 和 `linux/arm64`。
-
-
-安装脚本会自动生成缓存版本并刷新 Compose 模板，不需要手动添加 v 参数。
-
-Docker Hub 安装：
-curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh | sudo bash
-
-镜像代理安装：
-curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh | sudo env HIMEDIAX_MIRROR=https://gh-proxy.org bash
+GuessIt 是可选独立服务，使用 `compose.guessit.yaml` 手动部署。

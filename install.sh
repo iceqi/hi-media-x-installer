@@ -8,8 +8,9 @@ docker compose version >/dev/null 2>&1 || { echo "需要 Docker Compose v2。" >
 command -v openssl >/dev/null 2>&1 || { echo "需要 openssl。" >&2; exit 1; }
 command -v curl >/dev/null 2>&1 || { echo "需要 curl。" >&2; exit 1; }
 RAW_BASE="https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main"
+CACHE_VERSION=$(date +%s)
 for file in compose.full.yaml docker-compose.yml compose.controller.yaml xiaoya.yml; do
-    curl -fsSL "$RAW_BASE/$file?v=20260922-6" -o "$INSTALL_DIR/$file"
+    curl -fsSL "$RAW_BASE/$file?v=$CACHE_VERSION" -o "$INSTALL_DIR/$file"
 done
 prompt() {
   local label="$1" default="${2:-}" value

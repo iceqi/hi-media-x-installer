@@ -17,12 +17,13 @@ curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/ins
 安装脚本会自动下载 Compose 模板并显示菜单：
 
 ```text
-1) 快速安装 HiMediaX + 小雅控制器
-2) 只安装 HiMediaX
-3) 只安装小雅控制器
+1) 先安装小雅
+2) 快速安装 HiMediaX + 小雅控制器
+3) 只安装 HiMediaX
+4) 只安装小雅控制器
 ```
 
-直接回车默认选择第 1 项。
+直接回车默认选择第 1 项。选择第 1 项只安装小雅，完成后再次运行脚本选择第 2 项安装 HiMediaX 和小雅控制器。
 
 安装目录默认是执行命令时的当前目录。脚本会在该目录生成：
 

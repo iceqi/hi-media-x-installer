@@ -56,7 +56,6 @@ if [ "$mode" = 2 ] || [ "$mode" = 3 ]; then
   config_dir=$(prompt "HiMediaX 配置目录" "$INSTALL_DIR/config")
   controller_dir=$(prompt "小雅控制器工作目录" "$INSTALL_DIR/controller")
   controller_port=$(prompt "小雅控制器端口" "19090")
-  controller_token=$(secret_or_generate "小雅控制器 Token")
   mkdir -p "$xiaoya_data" "$config_dir" "$controller_dir"
   {
     echo "HIMEDIAX_XIAOYA_DATA_DIR=$xiaoya_data"
@@ -64,6 +63,7 @@ if [ "$mode" = 2 ] || [ "$mode" = 3 ]; then
     echo "HIMEDIAX_CONTROLLER_DIR=$controller_dir"
     echo "HIMEDIAX_CONTROLLER_PORT=$controller_port"
     echo "HIMEDIAX_CONTROLLER_TOKEN=$controller_token"
+    echo "HIMEDIAX_APP_URL=$hmx_url"
   } >> "$INSTALL_DIR/.env"
 fi
 

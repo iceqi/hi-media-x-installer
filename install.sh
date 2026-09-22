@@ -53,7 +53,6 @@ fi
 if [ "$mode" = 2 ] || [ "$mode" = 3 ]; then
   xiaoya_data=$(prompt "小雅安装目录" "$INSTALL_DIR/xiaoya-data")
   config_dir=$(prompt "HiMediaX 配置目录" "$INSTALL_DIR/config")
-  controller_dir=$(prompt "小雅控制器工作目录" "$INSTALL_DIR/controller")
   controller_port=$(prompt "小雅控制器端口" "19090")
   controller_ip=$(hostname -I 2>/dev/null | awk '{print $1}' || true)
   controller_ip="${controller_ip:-127.0.0.1}"
@@ -66,11 +65,10 @@ if [ "$mode" = 2 ] || [ "$mode" = 3 ]; then
     hmx_url="http://hi-media-x:8080"
     controller_token=$(secret_or_generate "小雅控制器 Token")
   fi
-  mkdir -p "$xiaoya_data" "$config_dir" "$controller_dir"
+  mkdir -p "$xiaoya_data" "$config_dir"
   {
     echo "HIMEDIAX_XIAOYA_DATA_DIR=$xiaoya_data"
     echo "HIMEDIAX_XIAOYA_CONFIG_DIR_HOST=$config_dir"
-    echo "HIMEDIAX_CONTROLLER_DIR=$controller_dir"
     echo "HIMEDIAX_CONTROLLER_PORT=$controller_port"
     echo "HIMEDIAX_CONTROLLER_TOKEN=$controller_token"
     echo "HIMEDIAX_APP_URL=$hmx_url"

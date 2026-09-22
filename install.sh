@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-clear 2>/dev/null || true
 if [ -t 1 ]; then C_RESET="\033[0m"; C_CYAN="\033[36m"; C_GREEN="\033[32m"; C_YELLOW="\033[33m"; C_BOLD="\033[1m"; else C_RESET=""; C_CYAN=""; C_GREEN=""; C_YELLOW=""; C_BOLD=""; fi
 INSTALL_DIR="$(pwd -P)"
 cd "$INSTALL_DIR"

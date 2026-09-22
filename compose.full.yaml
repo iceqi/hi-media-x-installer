@@ -1,7 +1,7 @@
 # HiMediaX 默认部署模板（主程序 + Controller；GuessIt 不默认安装）
 services:
   hi-media-x:
-    image: ${HIMEDIAX_IMAGE:-iceqi/hi-media-x:latest}
+    image: ${HIMEDIAX_IMAGE:-${HIMEDIAX_IMAGE_REGISTRY:-docker.io}/iceqi/hi-media-x:latest}
     container_name: ${HIMEDIAX_CONTAINER_NAME:-hi-media-x}
     environment:
       HIMEDIAX_DATA_ROOT: /app/data
@@ -23,7 +23,7 @@ services:
     restart: unless-stopped
     networks: [himediax]
   hi-media-x-controller:
-    image: ${HIMEDIAX_CONTROLLER_IMAGE:-iceqi/hi-media-x-controller:latest}
+    image: ${HIMEDIAX_CONTROLLER_IMAGE:-${HIMEDIAX_IMAGE_REGISTRY:-docker.io}/iceqi/hi-media-x-controller:latest}
     container_name: ${HIMEDIAX_CONTROLLER_CONTAINER_NAME:-hi-media-x-controller}
     environment:
       HIMEDIAX_CONTROLLER_ADDRESS: ":19090"

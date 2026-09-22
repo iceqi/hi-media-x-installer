@@ -19,8 +19,7 @@ services:
     volumes:
       - "${HIMEDIAX_DATA_DIR_HOST:?set HIMEDIAX_DATA_DIR_HOST}:/app/data"
       - "${HIMEDIAX_LIBRARY_DIR_HOST:?set HIMEDIAX_LIBRARY_DIR_HOST}:/app/library"
-    depends_on:
-      - hi-media-x-controller
+    depends_on: [hi-media-x-controller]
     restart: unless-stopped
     networks: [himediax]
   hi-media-x-controller:
@@ -47,4 +46,3 @@ services:
 networks:
   himediax:
     name: ${HIMEDIAX_NETWORK_NAME:-himediax}
-

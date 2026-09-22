@@ -1,11 +1,6 @@
 services:
   hi-media-x-controller:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.controller
-      args:
-        DOCKER_REGISTRY: ${DOCKER_REGISTRY:-proxy.151513.xyz}
-        GOPROXY: ${GOPROXY:-https://goproxy.cn,direct}
+    image: ${HIMEDIAX_CONTROLLER_IMAGE:-iceqi/hi-media-x-controller:latest}
     container_name: ${HIMEDIAX_CONTROLLER_CONTAINER_NAME:-hi-media-x-controller}
     environment:
       HIMEDIAX_CONTROLLER_ADDRESS: ":19090"

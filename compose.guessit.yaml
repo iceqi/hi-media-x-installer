@@ -1,11 +1,6 @@
 services:
   hi-media-x-guessit:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.guessit
-      args:
-        DOCKER_REGISTRY: ${DOCKER_REGISTRY:-proxy.151513.xyz}
-        GOPROXY: ${GOPROXY:-https://goproxy.cn,direct}
+    image: ${HIMEDIAX_GUESSIT_IMAGE:-iceqi/hi-media-x-guessit:latest}
     container_name: hi-media-x-guessit
     environment:
       HIMEDIAX_GUESSIT_ADDRESS: ":18084"

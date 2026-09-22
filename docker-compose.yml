@@ -1,11 +1,6 @@
 services:
   hi-media-x:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-      args:
-        DOCKER_REGISTRY: ${DOCKER_REGISTRY:-proxy.151513.xyz}
-        GOPROXY: ${GOPROXY:-https://goproxy.cn,direct}
+    image: ${HIMEDIAX_IMAGE:-iceqi/hi-media-x:latest}
     container_name: ${HIMEDIAX_CONTAINER_NAME:-hi-media-x}
     environment:
       HIMEDIAX_DATA_ROOT: /app/data

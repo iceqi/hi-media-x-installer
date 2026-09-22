@@ -23,14 +23,27 @@ secret_or_generate() {
   read -r -s -p "$label（留空自动生成）: " value </dev/tty
   echo
   printf "%s" "${value:-$(openssl rand -hex 32)}"
-}
-printf "%b\n" "${C_CYAN}${C_BOLD}=== HiMediaX 安装向导 ===${C_RESET}"
-printf "%b\n" "${C_GREEN}  1) 快速安装 HiMediaX + 小雅控制器${C_RESET}"
+printf "%b\n" "${C_GREEN}  1) 先安装小雅${C_RESET}"
+printf "%b\n" "${C_GREEN}  2) 快速安装 HiMediaX + 小雅控制器${C_RESET}"
+printf "%b\n" "${C_GREEN}  3) 只安装 HiMediaX${C_RESET}"
+printf "%b\n" "${C_GREEN}  4) 只安装小雅控制器${C_RESET}"
 printf "%b\n" "${C_GREEN}  2) 只安装 HiMediaX${C_RESET}"
 printf "%b\n" "${C_GREEN}  3) 只安装小雅控制器${C_RESET}"
 read -r -p "输入选项 [1]: " choice </dev/tty
 choice="${choice:-1}"
-case "$choice" in 1) mode=4 ;; 2) mode=3 ;; 3) mode=1 ;; 4) mode=2 ;; *) echo "无效选项。" >&2; exit 1 ;; esac
+case "$choice" in 2) mode=3 ;; 3) mode=1 ;; 4) mode=2 ;; *) echo "无效选项。" >&2; exit 1 ;; esac
+if [ "$choice" = 1 ]; then
+  xiaoya_dir=$(prompt "小雅安装目录" "$INSTALL_DIR/xiaoya")
+  xiaoya_web_port=$(prompt "小雅 WebDAV 端口" "5678")
+  xiaoya_alist_port=$(prompt "小雅管理端口" "2345")
+  mkdir -p "$xiaoya_dir"
+  { echo "HIMEDIAX_XIAOYA_DATA_DIR=$xiaoya_dir"; echo "HIMEDIAX_XIAOYA_WEB_PORT=$xiaoya_web_port"; echo "HIMEDIAX_XIAOYA_ALIST_PORT=$xiaoya_alist_port"; } >> "$INSTALL_DIR/.env"
+  docker compose --env-file "$INSTALL_DIR/.env" -f "$INSTALL_DIR/xiaoya.yml" pull
+  docker compose --env-file "$INSTALL_DIR/.env" -f "$INSTALL_DIR/xiaoya.yml" up -d
+  docker compose --env-file "$INSTALL_DIR/.env" -f "$INSTALL_DIR/xiaoya.yml" ps
+  echo "小雅安装完成，请再次运行脚本安装 HiMediaX。"
+  exit 0
+fi
 umask 077
 : > "$INSTALL_DIR/.env"
 if [ "$mode" = 1 ] || [ "$mode" = 3 ]; then

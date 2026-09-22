@@ -61,7 +61,7 @@ if [ "$mode" = 2 ] || [ "$mode" = 3 ]; then
   controller_ip="${controller_ip:-127.0.0.1}"
   if [ "$mode" = 2 ]; then
     hmx_url=$(prompt "HiMediaX 服务地址" "http://127.0.0.1:18080")
-    read -r -s -p "已有的小雅控制器 Token: " controller_token
+    read -r -s -p "已有的小雅控制器 Token: " controller_token </dev/tty
     echo
     [ -n "$controller_token" ] || { echo "单独安装控制器必须提供已有 Token。" >&2; exit 1; }
   else

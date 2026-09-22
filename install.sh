@@ -15,16 +15,16 @@ for file in compose.full.yaml docker-compose.yml compose.controller.yaml xiaoya.
 done
 prompt() {
   local label="$1" default="${2:-}" value
-  read -r -p "$label [$default]: " value </dev/tty
+  read -r -p "$label [$default]: " SECRET_VALUE </dev/tty
   printf "%s" "${value:-$default}"
 }
-secret_or_generate() {
-  local label="$1" value
+read_secret() {
+  local label="$1"
   printf "%s" "$label（留空自动生成）: " >/dev/tty
-  IFS= read -r -s value </dev/tty
+  IFS= read -r -s SECRET_VALUE </dev/tty
   printf "\n" >/dev/tty
-  if [ -z "$value" ]; then value=$(openssl rand -hex 32); fi
-  printf "%s" "$value"
+  if [ -z "$SECRET_VALUE" ]; then SECRET_VALUE=$(openssl rand -hex 32); fi
+
 }
 printf "%b\n" "${C_GREEN}  1) 先安装小雅${C_RESET}"
 printf "%b\n" "${C_GREEN}  2) 快速安装 HiMediaX + 小雅控制器${C_RESET}"

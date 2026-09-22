@@ -1,4 +1,4 @@
-# HiMediaX 全量 Docker Compose 模板（主程序 + Controller）
+# HiMediaX 默认部署模板（主程序 + Controller；GuessIt 不默认安装）
 services:
   hi-media-x:
     image: ${HIMEDIAX_IMAGE:-iceqi/hi-media-x:latest}

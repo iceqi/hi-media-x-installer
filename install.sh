@@ -24,9 +24,9 @@ secret_or_generate() {
 echo "HiMediaX 安装目录：$INSTALL_DIR"
 echo
 echo "请选择安装模式："
-echo "  1) 快速安装 HiMediaX + Controller"
+echo "  1) 快速安装 HiMediaX + 小雅控制器"
 echo "  2) 只安装 HiMediaX"
-echo "  3) 只安装 HiMediaX Controller"
+echo "  3) 只安装 小雅控制器"
 read -r -p "输入选项 [1]: " mode
 mode="${mode:-1}"
 case "$mode" in 1|2|3) ;; *) echo "无效选项。" >&2; exit 1 ;; esac
@@ -54,9 +54,9 @@ fi
 if [ "$mode" = 2 ] || [ "$mode" = 3 ]; then
   xiaoya_data=$(prompt "小雅数据目录" "$INSTALL_DIR/xiaoya-data")
   config_dir=$(prompt "HiMediaX 配置目录" "$INSTALL_DIR/config")
-  controller_dir=$(prompt "Controller 工作目录" "$INSTALL_DIR/controller")
+  controller_dir=$(prompt "小雅控制器工作目录" "$INSTALL_DIR/controller")
   controller_port=$(prompt "Controller 端口" "19090")
-  controller_token=$(secret_or_generate "Controller Token")
+  controller_token=$(secret_or_generate "小雅控制器 Token")
   mkdir -p "$xiaoya_data" "$config_dir" "$controller_dir"
   {
     echo "HIMEDIAX_XIAOYA_DATA_DIR=$xiaoya_data"

@@ -1,0 +1,14 @@
+# HiMediaX 使用的小雅独立服务。
+# 小雅容器内部 WebDAV 服务固定使用 80 端口，宿主机端口通过环境变量调整。
+services:
+  xiaoya-alist:
+    image: xiaoyaliu/alist:latest
+    container_name: ${HIMEDIAX_XIAOYA_CONTAINER:-xiaoya-alist}
+    ports:
+      - "${HIMEDIAX_XIAOYA_WEB_PORT:-5678}:80"
+      - "${HIMEDIAX_XIAOYA_ALIST_PORT:-2345}:2345"
+      - "${HIMEDIAX_XIAOYA_ALIST_TLS_PORT:-2346}:2346"
+    volumes:
+      - "${HIMEDIAX_XIAOYA_DATA_DIR:?set HIMEDIAX_XIAOYA_DATA_DIR}:/data"
+      - "${HIMEDIAX_XIAOYA_DATA_DIR:?set HIMEDIAX_XIAOYA_DATA_DIR}/data:/www/data"
+    restart: unless-stopped

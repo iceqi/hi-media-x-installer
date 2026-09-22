@@ -1,0 +1,36 @@
+services:
+  hi-media-x:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        DOCKER_REGISTRY: ${DOCKER_REGISTRY:-proxy.151513.xyz}
+        GOPROXY: ${GOPROXY:-https://goproxy.cn,direct}
+    container_name: ${HIMEDIAX_CONTAINER_NAME:-hi-media-x}
+    environment:
+      HIMEDIAX_DATA_ROOT: /app/data
+      HIMEDIAX_LIBRARY_ROOT: /app/library
+      HIMEDIAX_HTTP_ADDRESS: ":8080"
+      HIMEDIAX_WEBDAV_ADDRESS: ":8081"
+      HIMEDIAX_PROXY_ADDRESS: ":8085"
+      HIMEDIAX_HTTP_PORT: "${HIMEDIAX_HTTP_PORT:-18080}"
+      HIMEDIAX_WEBDAV_PORT: "${HIMEDIAX_WEBDAV_PORT:-18081}"
+      HIMEDIAX_PROXY_PORT: "${HIMEDIAX_PROXY_PORT:-18096}"
+      HIMEDIAX_LIBRARY_DIR_HOST: "${HIMEDIAX_LIBRARY_DIR_HOST}"
+      HIMEDIAX_LOCAL_PLAYBACK_ORIGIN: "http://127.0.0.1:18083"
+      HIMEDIAX_CONTROLLER_URL: "${HIMEDIAX_CONTROLLER_URL:-http://host.docker.internal:19090}"
+      HIMEDIAX_CONTROLLER_TOKEN: "${HIMEDIAX_CONTROLLER_TOKEN:-}"
+      HIMEDIAX_JWT_SECRET: "${HIMEDIAX_JWT_SECRET:?set HIMEDIAX_JWT_SECRET}"
+      HIMEDIAX_GUESSIT_URL: "${HIMEDIAX_GUESSIT_URL:-http://host.docker.internal:18084}"
+      HIMEDIAX_TMDB_API_KEY: "${HIMEDIAX_TMDB_API_KEY:-}"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "${HIMEDIAX_HTTP_PORT:-18080}:8080"
+      - "${HIMEDIAX_WEBDAV_PORT:-18081}:8081"
+      # 容器内反代固定监听 8085；宿主机默认通过 18096 对外提供 Emby。
+      - "${HIMEDIAX_PROXY_PORT:-18096}:8085"
+    volumes:
+      - "${HIMEDIAX_DATA_DIR_HOST:?set HIMEDIAX_DATA_DIR_HOST}:/app/data"
+      - "${HIMEDIAX_LIBRARY_DIR_HOST:?set HIMEDIAX_LIBRARY_DIR_HOST}:/app/library"
+    restart: unless-stopped

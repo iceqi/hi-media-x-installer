@@ -1,0 +1,29 @@
+services:
+  hi-media-x-controller:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.controller
+      args:
+        DOCKER_REGISTRY: ${DOCKER_REGISTRY:-proxy.151513.xyz}
+        GOPROXY: ${GOPROXY:-https://goproxy.cn,direct}
+    container_name: ${HIMEDIAX_CONTROLLER_CONTAINER_NAME:-hi-media-x-controller}
+    environment:
+      HIMEDIAX_CONTROLLER_ADDRESS: ":19090"
+      HIMEDIAX_CONTROLLER_TOKEN: "${HIMEDIAX_CONTROLLER_TOKEN:?set HIMEDIAX_CONTROLLER_TOKEN}"
+      HIMEDIAX_XIAOYA_CONFIG_DIR: /xiaoya
+      HIMEDIAX_DOCKER_SOCKET: /var/run/docker.sock
+      HIMEDIAX_XIAOYA_CONTAINER: "${HIMEDIAX_XIAOYA_CONTAINER:-xiaoya-alist}"
+      HIMEDIAX_XIAOYA_SERVICE_PORTS: "${HIMEDIAX_XIAOYA_SERVICE_PORTS:-80}"
+      HIMEDIAX_HOST_ADDRESSES_FILE: /etc/himedia/config/HIMEDIAX_HOST_ADDRESSES
+      HIMEDIAX_ADVERTISED_ADDRESSES: "${HIMEDIAX_ADVERTISED_ADDRESSES:-}"
+      HIMEDIAX_APP_URL: "${HIMEDIAX_APP_URL:-http://hi-media-x:8080}"
+    ports:
+      # Controller 需要同时被宿主机和 HiMediaX 主容器访问；Token 仍是接口认证边界。
+      # 如需限制宿主机绑定地址，可设置 HIMEDIAX_CONTROLLER_BIND_ADDRESS。
+      - "${HIMEDIAX_CONTROLLER_BIND_ADDRESS:-0.0.0.0}:${HIMEDIAX_CONTROLLER_PORT:-19090}:19090"
+    volumes:
+      - "${HIMEDIAX_XIAOYA_DATA_DIR:?set HIMEDIAX_XIAOYA_DATA_DIR}:/xiaoya"
+      - "${HIMEDIAX_XIAOYA_CONFIG_DIR_HOST:?set HIMEDIAX_XIAOYA_CONFIG_DIR_HOST}:/etc/himedia/config:ro"
+      - "${HIMEDIAX_CONTROLLER_DIR:?set HIMEDIAX_CONTROLLER_DIR}:/controller:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    restart: unless-stopped

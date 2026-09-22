@@ -1,0 +1,9 @@
+# 首版以 HIMEDIAX_ 环境变量为运行时契约，本文件记录对应配置及默认值。
+data_root: /app/data
+library_root: /app/library
+http_address: ":8080"
+webdav_address: ":8081"
+local_playback_origin: "http://127.0.0.1:18083"
+accounts_file: /app/data/config/accounts.json
+guessit_url: "http://127.0.0.1:18084"
+tmdb_api_key: ""

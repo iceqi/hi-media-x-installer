@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
+clear 2>/dev/null || true
+if [ -t 1 ]; then C_RESET="\033[0m"; C_CYAN="\033[36m"; C_GREEN="\033[32m"; C_YELLOW="\033[33m"; C_BOLD="\033[1m"; else C_RESET=""; C_CYAN=""; C_GREEN=""; C_YELLOW=""; C_BOLD=""; fi
 INSTALL_DIR="$(pwd -P)"
 cd "$INSTALL_DIR"
 command -v docker >/dev/null 2>&1 || { echo "需要先安装 Docker。" >&2; exit 1; }
@@ -23,10 +25,10 @@ secret_or_generate() {
   echo
   printf "%s" "${value:-$(openssl rand -hex 32)}"
 }
-echo "HiMediaX 安装目录：$INSTALL_DIR"
-echo "  1) 快速安装 HiMediaX + 小雅控制器"
-echo "  2) 只安装 HiMediaX"
-echo "  3) 只安装小雅控制器"
+printf "%b\n" "${C_CYAN}${C_BOLD}=== HiMediaX 安装向导 ===${C_RESET}"
+printf "%b\n" "${C_GREEN}  1) 快速安装 HiMediaX + 小雅控制器${C_RESET}"
+printf "%b\n" "${C_GREEN}  2) 只安装 HiMediaX${C_RESET}"
+printf "%b\n" "${C_GREEN}  3) 只安装小雅控制器${C_RESET}"
 read -r -p "输入选项 [1]: " choice
 choice="${choice:-1}"
 case "$choice" in 1) mode=3 ;; 2) mode=1 ;; 3) mode=2 ;; *) echo "无效选项。" >&2; exit 1 ;; esac

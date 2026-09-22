@@ -1,35 +1,146 @@
-# HiMediaX
+# HiMediaX 安装器
 
-HiMediaX 是文件系统驱动的媒体本地化服务。扫描器直接生成可播放的 STRM，刮削结果直接写入 NFO 和图片，媒体视图使用可重建的相对软连接，不依赖业务数据库。
+HiMediaX 是面向媒体本地化和管理的 Docker 化服务。用户只需要准备 Docker，不需要安装 Go、Node.js 或 Python。
 
-## 快速开始
+本仓库是公开的用户安装入口，不包含 HiMediaX 主程序源码。
 
-1. 复制 `config.example.yaml` 并按环境设置 `HIMEDIAX_*` 变量。
-2. 设置 `HIMEDIAX_DATA_DIR_HOST` 和 `HIMEDIAX_LIBRARY_DIR_HOST` 后执行 `docker compose up --build`；管理端默认发布在宿主机 `18080`，扫描产物直接写入 `HIMEDIAX_LIBRARY_DIR_HOST`。
-3. 首次访问 `http://主机:18080/login` 创建管理员，随后配置小雅 WebDAV 与本地播放服务地址。
+## 一键安装
 
-健康端点为 `/api/health/live` 和 `/api/health/ready`。登录后可通过 `/xiaoya` 配置服务，通过 `/media/xiaoya` 浏览和扫描；WebDAV 默认只读监听 `8081`。
-
-Docker 构建默认通过 `proxy.151513.xyz` 拉取基础镜像，并使用 `https://goproxy.cn` 下载 Go 模块。需要切换时可在执行 Compose 前设置 `DOCKER_REGISTRY` 和 `GOPROXY`。
-
-## 小雅 Controller
-
-Controller 是部署在小雅所在宿主机上的独立服务，不由 Supervisor 或 HiMediaX 主程序托管。它需要同时挂载小雅安装目录和 Docker Socket：
+建议在专用目录中执行：
 
 ```bash
-HIMEDIAX_CONTROLLER_TOKEN='change-me' \
-HIMEDIAX_XIAOYA_DATA_DIR=/srv/xiaoya-data \
-HIMEDIAX_XIAOYA_CONFIG_DIR_HOST=/srv/hi-media-x/config \
-HIMEDIAX_CONTROLLER_DIR=/srv/hi-media-x/controller \
-docker compose -f compose.controller.yaml up --build -d
+sudo mkdir -p /opt/himediax
+cd /opt/himediax
+curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh | sudo bash
 ```
 
-Controller 默认监听宿主机 `19090`，目标容器为 `xiaoya-alist`。它提供小雅容器状态、启动/停止/重启、日志、Token、允许的配置文件、凭据、二维码登录和转存目录接口；所有 `/v1/xiaoya/*` 请求都必须携带 `X-HiMediaX-Controller-Token`。
+安装脚本会自动下载 Compose 模板并显示菜单：
 
-小雅独立服务部署文件为 `xiaoya.yml`。它固定使用容器内部 `80` 端口作为 WebDAV 服务，默认映射宿主机 `5678`，并保留 `2345`、`2346` 管理端口。部署时设置 `HIMEDIAX_XIAOYA_DATA_DIR`，不会自动删除或初始化已有小雅数据。
+```text
+1) 快速安装 HiMediaX + 小雅控制器
+2) 只安装 HiMediaX
+3) 只安装小雅控制器
+```
 
-小雅 WebDAV 默认凭据为用户名 `guest`、密码 `guest_Api789`；HiMediaX 仅在本地 JSON 中保存密码，管理页面始终只显示“已配置”状态。
+直接回车默认选择第 1 项。
 
-Controller compose 支持 `HIMEDIAX_APP_URL`，默认回调同一 Docker 网络内的 `http://hi-media-x:8080`；同时通过 `HIMEDIAX_ADVERTISED_ADDRESSES` 指定宿主机可访问的主网络地址，例如 `http://192.168.1.242:5678`。Controller 启动后会自动回调 HiMediaX 注册接口，HiMediaX 再把该地址写入小雅 WebDAV 配置。
+安装目录默认是执行命令时的当前目录。脚本会在该目录生成：
 
-挂载层级必须保持分离：`HIMEDIAX_XIAOYA_DATA_DIR` 是小雅实际数据目录，映射到容器 `/xiaoya`；`HIMEDIAX_XIAOYA_CONFIG_DIR_HOST` 是安装器的配置目录，映射到 `/etc/himedia/config`；`HIMEDIAX_CONTROLLER_DIR` 是 Controller 专用目录，映射到 `/controller`。不要把包含这三个目录的安装根目录整体映射到 `/xiaoya`。
+```text
+.env
+compose.full.yaml
+docker-compose.yml
+compose.controller.yaml
+```
+
+## 安装选项
+
+### 1. 快速安装
+
+一次启动：
+
+- HiMediaX 主程序
+- 小雅控制器
+
+脚本会询问数据目录、媒体库目录、端口、JWT 密钥和小雅控制器 Token。密钥留空时自动生成强随机值。
+
+### 2. 只安装 HiMediaX
+
+适合小雅控制器已经部署在其他服务器的场景。主程序使用 `docker-compose.yml`。
+
+### 3. 只安装小雅控制器
+
+脚本会额外询问：
+
+- HiMediaX 服务地址，例如 `http://192.168.1.100:18080`
+- 已经在 HiMediaX 中使用的小雅控制器 Token
+
+脚本会自动探测当前服务器 IP，并设置小雅控制器回调地址和对外通告地址。控制器与 HiMediaX 使用相同 Token 时才能完成认证。
+
+## 手动 Compose
+
+默认全量部署：
+
+```bash
+docker compose --env-file .env -f compose.full.yaml pull
+docker compose --env-file .env -f compose.full.yaml up -d
+docker compose --env-file .env -f compose.full.yaml ps
+```
+
+只部署主程序：
+
+```bash
+docker compose --env-file .env -f docker-compose.yml pull
+docker compose --env-file .env -f docker-compose.yml up -d
+```
+
+只部署小雅控制器：
+
+```bash
+docker compose --env-file .env -f compose.controller.yaml pull
+docker compose --env-file .env -f compose.controller.yaml up -d
+```
+
+## GuessIt（可选）
+
+GuessIt 暂时不属于默认安装内容。需要时手动执行：
+
+```bash
+docker compose -f compose.guessit.yaml pull
+docker compose -f compose.guessit.yaml up -d
+```
+
+## 更新
+
+在安装目录执行：
+
+```bash
+docker compose --env-file .env -f compose.full.yaml pull
+docker compose --env-file .env -f compose.full.yaml up -d
+docker compose --env-file .env -f compose.full.yaml ps
+```
+
+单独部署模式请替换为实际使用的 Compose 文件。
+
+## 端口和目录
+
+默认端口：
+
+| 用途 | 默认端口 |
+| --- | ---: |
+| HiMediaX 管理页面 | 18080 |
+| HiMediaX WebDAV | 18081 |
+| HiMediaX 播放代理 | 18096 |
+| 小雅控制器 | 19090 |
+| GuessIt（可选） | 18084 |
+
+脚本会交互询问宿主机目录。不要把包含敏感配置的 `.env` 提交到公开仓库。
+
+## 镜像架构
+
+官方镜像支持：
+
+```text
+linux/amd64
+linux/arm64
+```
+
+Docker 会根据服务器架构自动拉取对应镜像。
+
+主程序镜像：
+
+```text
+iceqi/hi-media-x:latest
+```
+
+小雅控制器镜像：
+
+```text
+iceqi/hi-media-x-controller:latest
+```
+
+GuessIt 镜像：
+
+```text
+iceqi/hi-media-x-guessit:latest
+```

@@ -53,7 +53,7 @@ if [ "$mode" = 1 ] || [ "$mode" = 3 ]; then
   http_port=$(prompt "管理端口" "18080")
   webdav_port=$(prompt "WebDAV 端口" "18081")
   proxy_port=$(prompt "播放代理端口" "18096")
-  jwt_secret=$(secret_or_generate "JWT 密钥")
+  read_secret "JWT 密钥"; jwt_secret="$SECRET_VALUE"
   mkdir -p "$data_dir" "$library_dir"
   {
     echo "HIMEDIAX_DATA_DIR_HOST=$data_dir"
@@ -77,7 +77,7 @@ if [ "$mode" = 2 ] || [ "$mode" = 3 ]; then
     [ -n "$controller_token" ] || { echo "单独安装控制器必须提供已有 Token。" >&2; exit 1; }
   else
     hmx_url="http://hi-media-x:8080"
-    controller_token=$(secret_or_generate "小雅控制器 Token")
+    read_secret "小雅控制器 Token"; controller_token="$SECRET_VALUE"
   fi
   [ -d "$xiaoya_data" ] || { echo "小雅安装目录不存在，请先完成小雅服务安装后再运行此选项。" >&2; exit 1; }
   mkdir -p "$config_dir"

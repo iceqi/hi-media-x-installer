@@ -24,12 +24,13 @@ secret_or_generate() {
 echo "HiMediaX 安装目录：$INSTALL_DIR"
 echo
 echo "请选择安装模式："
-echo "  1) 只安装 HiMediaX 主程序"
-echo "  2) 只安装 HiMediaX Controller"
-echo "  3) 一键安装主程序 + Controller"
-read -r -p "输入选项 [3]: " mode
-mode="${mode:-3}"
+echo "  1) 快速安装 HiMediaX + Controller"
+echo "  2) 只安装 HiMediaX"
+echo "  3) 只安装 HiMediaX Controller"
+read -r -p "输入选项 [1]: " mode
+mode="${mode:-1}"
 case "$mode" in 1|2|3) ;; *) echo "无效选项。" >&2; exit 1 ;; esac
+case "$mode" in 1) mode=3 ;; 2) mode=1 ;; 3) mode=2 ;; esac
 
 umask 077
 if [ "$mode" = 1 ] || [ "$mode" = 3 ]; then

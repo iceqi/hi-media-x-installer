@@ -13,7 +13,7 @@ for file in compose.full.yaml docker-compose.yml compose.controller.yaml xiaoya.
 done
 prompt() {
   local label="$1" default="${2:-}" value
-  read -r -p "$label [$default]: " SECRET_VALUE </dev/tty
+  read -r -p "$label [$default]: " value </dev/tty
   printf "%s" "${value:-$default}"
 }
 read_secret() {

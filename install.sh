@@ -67,6 +67,7 @@ if [ "$mode" = 2 ] || [ "$mode" = 3 ]; then
   xiaoya_data=$(prompt "小雅安装目录" "$INSTALL_DIR/xiaoya-data")
   config_dir=$(prompt "HiMediaX 配置目录" "$INSTALL_DIR/config")
   controller_port=$(prompt "小雅控制器端口" "19090")
+  xiaoya_web_port=$(prompt "小雅 WebDAV 宿主机端口" "5678")
   controller_ip=$(hostname -I 2>/dev/null | awk '{print $1}' || true)
   controller_ip="${controller_ip:-127.0.0.1}"
   if [ "$mode" = 2 ]; then
@@ -86,7 +87,7 @@ if [ "$mode" = 2 ] || [ "$mode" = 3 ]; then
     echo "HIMEDIAX_CONTROLLER_PORT=$controller_port"
     echo "HIMEDIAX_CONTROLLER_TOKEN=$controller_token"
     echo "HIMEDIAX_APP_URL=$hmx_url"
-    echo "HIMEDIAX_ADVERTISED_ADDRESSES=http://$controller_ip:$controller_port"
+    echo "HIMEDIAX_ADVERTISED_ADDRESSES=http://$controller_ip:$xiaoya_web_port"
   } >> "$INSTALL_DIR/.env"
 fi
 case "$mode" in

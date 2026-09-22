@@ -51,7 +51,7 @@ if [ "$mode" = 1 ] || [ "$mode" = 3 ]; then
   } >> "$INSTALL_DIR/.env"
 fi
 if [ "$mode" = 2 ] || [ "$mode" = 3 ]; then
-  xiaoya_data=$(prompt "小雅数据目录" "$INSTALL_DIR/xiaoya-data")
+  xiaoya_data=$(prompt "小雅安装目录" "$INSTALL_DIR/xiaoya-data")
   config_dir=$(prompt "HiMediaX 配置目录" "$INSTALL_DIR/config")
   controller_dir=$(prompt "小雅控制器工作目录" "$INSTALL_DIR/controller")
   controller_port=$(prompt "小雅控制器端口" "19090")

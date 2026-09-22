@@ -65,7 +65,8 @@ if [ "$mode" = 2 ] || [ "$mode" = 3 ]; then
     hmx_url="http://hi-media-x:8080"
     controller_token=$(secret_or_generate "小雅控制器 Token")
   fi
-  mkdir -p "$xiaoya_data" "$config_dir"
+  [ -d "$xiaoya_data" ] || { echo "小雅安装目录不存在，请先完成小雅服务安装后再运行此选项。" >&2; exit 1; }
+  mkdir -p "$config_dir"
   {
     echo "HIMEDIAX_XIAOYA_DATA_DIR=$xiaoya_data"
     echo "HIMEDIAX_XIAOYA_CONFIG_DIR_HOST=$config_dir"

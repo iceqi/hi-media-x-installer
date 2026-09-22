@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# HiMediaX 菜单式安装：主程序、Controller 可分开安装，也可一键全量安装。
+# HiMediaX 菜单式安装：主程序、小雅控制器 可分开安装，也可一键全量安装。
 INSTALL_DIR="$(pwd -P)"
 cd "$INSTALL_DIR"
 
@@ -55,7 +55,7 @@ if [ "$mode" = 2 ] || [ "$mode" = 3 ]; then
   xiaoya_data=$(prompt "小雅数据目录" "$INSTALL_DIR/xiaoya-data")
   config_dir=$(prompt "HiMediaX 配置目录" "$INSTALL_DIR/config")
   controller_dir=$(prompt "小雅控制器工作目录" "$INSTALL_DIR/controller")
-  controller_port=$(prompt "Controller 端口" "19090")
+  controller_port=$(prompt "小雅控制器端口" "19090")
   controller_token=$(secret_or_generate "小雅控制器 Token")
   mkdir -p "$xiaoya_data" "$config_dir" "$controller_dir"
   {

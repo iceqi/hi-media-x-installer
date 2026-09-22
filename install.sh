@@ -20,9 +20,11 @@ prompt() {
 }
 secret_or_generate() {
   local label="$1" value
-  read -r -s -p "$label（留空自动生成）: " value </dev/tty
-  echo
-  printf "%s" "${value:-$(openssl rand -hex 32)}"
+  printf "%s" "$label（留空自动生成）: " >/dev/tty
+  IFS= read -r -s value </dev/tty
+  printf "\n" >/dev/tty
+  if [ -z "$value" ]; then value=$(openssl rand -hex 32); fi
+  printf "%s" "$value"
 }
 printf "%b\n" "${C_GREEN}  1) 先安装小雅${C_RESET}"
 printf "%b\n" "${C_GREEN}  2) 快速安装 HiMediaX + 小雅控制器${C_RESET}"

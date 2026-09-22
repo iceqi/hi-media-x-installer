@@ -9,9 +9,7 @@ command -v openssl >/dev/null 2>&1 || { echo "需要 openssl。" >&2; exit 1; }
 command -v curl >/dev/null 2>&1 || { echo "需要 curl。" >&2; exit 1; }
 RAW_BASE="https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main"
 for file in compose.full.yaml docker-compose.yml compose.controller.yaml xiaoya.yml; do
-  if [ ! -f "$INSTALL_DIR/$file" ]; then
     curl -fsSL "$RAW_BASE/$file" -o "$INSTALL_DIR/$file"
-  fi
 done
 prompt() {
   local label="$1" default="${2:-}" value

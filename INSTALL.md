@@ -12,8 +12,8 @@
 ## 执行安装
 
 ```bash
-sudo mkdir -p /opt/himediax-installer
-cd /opt/himediax-installer
+sudo mkdir -p /srv/himediax
+cd /srv/himediax
 curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh | sudo bash
 ```
 
@@ -33,11 +33,13 @@ Controller 启动时向 `POST /api/v1/controller/register` 提交自身公开地
 
 重新注册不会覆盖管理员在 HiMediaX 页面修改过的 WebDAV账号密码。更换 Controller 前应先在管理端解除原绑定。
 
-## 配置文件
+## 安装目录与配置文件
 
-- `/opt/hi-media-x/himediax.env`：HiMediaX 路径、端口和 JWT 密钥。
-- `/opt/hi-media-x-controller/controller.env`：Controller Token、公开地址、小雅目录和服务端口。
-- `/opt/xiaoya/xiaoya.env`：小雅容器、数据目录和端口。
+安装目录就是执行脚本时的当前目录：
+
+- `./himediax.env`：HiMediaX 路径、端口和 JWT 密钥。
+- `./controller/controller.env`：Controller Token、公开地址、小雅目录和服务端口。
+- `./xiaoya/xiaoya.env`：小雅容器、数据目录和端口。
 
 环境文件权限为 `0600`。重新运行安装脚本时会复用已有的随机密钥。
 
@@ -57,3 +59,14 @@ Controller 独立部署，不参与上述 readiness。
 重新运行安装脚本，或使用对应环境文件执行 `docker compose pull` 和 `docker compose up -d`。主程序与 Controller 官方镜像均提供 `linux/amd64` 和 `linux/arm64`。
 
 GuessIt 是可选独立服务，使用 `compose.guessit.yaml` 手动部署。
+
+## 镜像代理
+
+Docker Hub 不可达时使用镜像代理：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh \
+  | sudo env HIMEDIAX_MIRROR=https://gh-proxy.org bash
+```
+
+也可以设置 `HIMEDIAX_IMAGE_REGISTRY`。两种变量都支持带或不带 `http://`、`https://` 前缀。

@@ -7,8 +7,8 @@
 建议在专用目录中执行：
 
 ```bash
-sudo mkdir -p /opt/himediax-installer
-cd /opt/himediax-installer
+sudo mkdir -p /srv/himediax
+cd /srv/himediax
 curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh | sudo bash
 ```
 
@@ -28,18 +28,18 @@ curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/ins
 
 - 全新安装按“小雅 → HiMediaX → Controller”顺序执行。
 - Controller 安装前必须检测到可用的小雅容器、`/data` 挂载、WebDAV 端口和 HiMediaX 健康端点。
-- Controller Token 由安装器生成并保存在 `/opt/hi-media-x-controller/controller.env`，权限为 `0600`。
+- Controller Token 由安装器生成并保存在 `./controller/controller.env`，权限为 `0600`。
 - Controller 启动后主动向 HiMediaX 注册；HiMediaX 通过随机挑战反向确认 Controller 和 WebDAV 地址。
 - 重复安装会复用已经生成的 JWT 密钥和 Controller Token。
 - GuessIt 是可选独立服务，不参与 HiMediaX readiness，也不在五项菜单中自动安装。
 
-默认配置目录：
+默认安装目录就是执行脚本时的当前目录：
 
 | 组件 | 默认目录 | 环境文件 |
 | --- | --- | --- |
-| HiMediaX | `/opt/hi-media-x` | `himediax.env` |
-| Controller | `/opt/hi-media-x-controller` | `controller.env` |
-| 小雅 | `/opt/xiaoya` | `xiaoya.env` |
+| HiMediaX | 当前目录 | `himediax.env` |
+| Controller | 当前目录/controller | `controller.env` |
+| 小雅 | 当前目录/xiaoya | `xiaoya.env` |
 
 ## 已有服务场景
 
@@ -63,11 +63,11 @@ iceqi/hi-media-x-controller:latest
 镜像同时支持 `linux/amd64` 和 `linux/arm64`。也可以在组件目录使用其环境文件和本仓库模板手动更新：
 
 ```bash
-docker compose --env-file /opt/hi-media-x/himediax.env -f docker-compose.yml pull
-docker compose --env-file /opt/hi-media-x/himediax.env -f docker-compose.yml up -d
+docker compose --env-file ./himediax.env -f docker-compose.yml pull
+docker compose --env-file ./himediax.env -f docker-compose.yml up -d
 
-docker compose --env-file /opt/hi-media-x-controller/controller.env -f compose.controller.yaml pull
-docker compose --env-file /opt/hi-media-x-controller/controller.env -f compose.controller.yaml up -d
+docker compose --env-file ./controller/controller.env -f compose.controller.yaml pull
+docker compose --env-file ./controller/controller.env -f compose.controller.yaml up -d
 ```
 
 ## 可选 GuessIt
@@ -84,11 +84,11 @@ docker compose -f compose.guessit.yaml up -d
 设置 `HIMEDIAX_IMAGE_REGISTRY` 可以替换 Compose 使用的镜像注册表，例如：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh |
-  sudo env HIMEDIAX_IMAGE_REGISTRY=gh-proxy.org/docker bash
+curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh \
+  | sudo env HIMEDIAX_MIRROR=https://gh-proxy.org bash
 ```
 
-代理必须能够直接访问 `iceqi/hi-media-x` 和 `iceqi/hi-media-x-controller` 路径。
+也可以设置 `HIMEDIAX_IMAGE_REGISTRY=gh-proxy.org`。脚本会自动去掉 `http://` 或 `https://` 前缀。
 
 ## 安全说明
 

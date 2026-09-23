@@ -101,6 +101,16 @@ download_assets() {
   done
 }
 
+resolve_image_registry() {
+  local registry="${HIMEDIAX_MIRROR:-${HIMEDIAX_IMAGE_REGISTRY:-docker.io}}"
+  registry="${registry%/}"
+  registry="${registry#https://}"
+  registry="${registry#http://}"
+  [[ -n "${registry}" ]] || fail "镜像代理地址不能为空"
+  HIMEDIAX_IMAGE_REGISTRY="${registry}"
+  export HIMEDIAX_IMAGE_REGISTRY
+}
+
 default_service_ipv4() {
   ip -4 route get 1.1.1.1 2>/dev/null | awk '{for (i=1; i<=NF; i++) if ($i == "src") {print $(i+1); exit}}'
 }
@@ -186,7 +196,7 @@ wait_himediax_ready() {
 
 install_xiaoya() {
   local compose_file="${script_dir}/xiaoya.yml"
-  local install_dir="${HIMEDIAX_XIAOYA_INSTALL_DIR:-/opt/xiaoya}"
+  local install_dir="${HIMEDIAX_XIAOYA_INSTALL_DIR:-${script_dir}/xiaoya}"
   local env_file="${install_dir}/xiaoya.env"
   local alist_port
   local alist_tls_port
@@ -298,7 +308,7 @@ select_existing_xiaoya() {
 install_himediax() {
   local public_host="${1:-}"
   local compose_file="${script_dir}/docker-compose.yml"
-  local install_dir="${HIMEDIAX_INSTALL_DIR:-/opt/hi-media-x}"
+  local install_dir="${HIMEDIAX_INSTALL_DIR:-${script_dir}}"
   local data_dir="${HIMEDIAX_DATA_DIR_HOST:-$(prompt "HiMediaX 数据目录" "${install_dir}/data")}"
   local library_dir="${HIMEDIAX_LIBRARY_DIR_HOST:-$(prompt "HiMediaX 媒体库目录" "${install_dir}/library")}"
   local http_port="${HIMEDIAX_HTTP_PORT:-$(prompt "HiMediaX 管理端口" "18080")}"
@@ -404,7 +414,7 @@ resolve_himediax_url() {
 
 install_controller() {
   local compose_file="${script_dir}/compose.controller.yaml"
-  local install_dir="${HIMEDIAX_CONTROLLER_INSTALL_DIR:-/opt/hi-media-x-controller}"
+  local install_dir="${HIMEDIAX_CONTROLLER_INSTALL_DIR:-${script_dir}/controller}"
   local env_file="${install_dir}/controller.env"
   local controller_port
   local controller_url
@@ -478,6 +488,7 @@ main() {
   command -v curl >/dev/null 2>&1 || fail "未安装 curl"
   docker info >/dev/null 2>&1 || fail "Docker 不可用，请检查服务状态和当前用户权限"
   docker compose version >/dev/null 2>&1 || fail "未安装 Docker Compose 插件"
+  resolve_image_registry
   download_assets
 
   show_menu

@@ -39,7 +39,7 @@ Controller 启动时向 `POST /api/v1/controller/register` 提交自身公开地
 
 - `./himediax.env`：HiMediaX 路径、端口和 JWT 密钥。
 - `./controller/controller.env`：Controller Token、公开地址、小雅目录和服务端口。
-- `./xiaoya/xiaoya.env`：小雅容器、数据目录和端口。
+- `./xiaoya/xiaoya.env`：小雅容器、数据目录和端口；小雅数据根目录默认就是 `./xiaoya/`，不会额外拼接一层 `data`。
 
 环境文件权限为 `0600`。重新运行安装脚本时会复用已有的随机密钥。
 

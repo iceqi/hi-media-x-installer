@@ -252,13 +252,18 @@ install_xiaoya() {
 
   docker compose --env-file "${env_file}" -f "${compose_file}" pull
   docker compose --env-file "${env_file}" -f "${compose_file}" up -d
-  wait_container_running "${xiaoya_container}" || fail "小雅容器未能正常启动"
-  xiaoya_dir="$(container_mount_source "${xiaoya_container}" "/data")"
-  xiaoya_webdav_port="$(container_host_port "${xiaoya_container}" "80")"
-  [[ -n "${xiaoya_dir}" && -d "${xiaoya_dir}" ]] || fail "无法确认小雅宿主机数据目录"
-  valid_port "${xiaoya_webdav_port}" || fail "无法确认小雅 WebDAV 端口映射"
-  wait_http_service "http://127.0.0.1:${xiaoya_webdav_port}" || fail "小雅 WebDAV 服务未能在端口 ${xiaoya_webdav_port} 就绪"
-  echo "小雅安装成功：http://127.0.0.1:${xiaoya_webdav_port}"
+  # 小雅在尚未配置阿里云盘 Token 时可能反复重启；先完成容器部署，交由
+  # Controller 写入配置后再恢复服务，不能因为临时 WebDAV 探测失败中断安装。
+  if wait_container_running "${xiaoya_container}"; then
+    xiaoya_dir="$(container_mount_source "${xiaoya_container}" "/data")"
+    xiaoya_webdav_port="$(container_host_port "${xiaoya_container}" "80")"
+    if valid_port "${xiaoya_webdav_port}" && ! wait_http_service "http://127.0.0.1:${xiaoya_webdav_port}"; then
+      echo "警告：小雅 WebDAV 尚未就绪，完成 Token 配置后会自动恢复。" >&2
+    fi
+  else
+    echo "警告：小雅容器当前未保持运行，可能需要先通过 Controller 配置 Token。" >&2
+  fi
+  echo "小雅容器部署完成：${xiaoya_container}"
 }
 
 select_existing_xiaoya() {

@@ -206,7 +206,10 @@ wait_himediax_ready() {
 
 install_xiaoya() {
   local compose_file="${script_dir}/xiaoya.yml"
-  local install_dir="${HIMEDIAX_XIAOYA_INSTALL_DIR:-${script_dir}/xiaoya}"
+  local default_install_dir="${script_dir}/xiaoya"
+  # 用户在 xiaoya 目录内执行脚本时直接复用当前目录，避免重复拼接 xiaoya。
+  [[ "$(basename "${script_dir}")" == "xiaoya" ]] && default_install_dir="${script_dir}"
+  local install_dir="${HIMEDIAX_XIAOYA_INSTALL_DIR:-${default_install_dir}}"
   local env_file="${install_dir}/xiaoya.env"
   local alist_port
   local alist_tls_port
@@ -216,7 +219,7 @@ install_xiaoya() {
   if container_exists "${xiaoya_container}"; then
     fail "容器 ${xiaoya_container} 已存在；如需复用已有小雅，请选择只安装小雅控制器"
   fi
-  xiaoya_dir="${HIMEDIAX_XIAOYA_DATA_DIR:-$(prompt "小雅数据目录" "${install_dir}/data")}"
+  xiaoya_dir="${HIMEDIAX_XIAOYA_DATA_DIR:-$(prompt "小雅程序/数据根目录" "${install_dir}")}"
   xiaoya_webdav_port="${HIMEDIAX_XIAOYA_WEBDAV_PORT:-$(prompt "小雅 WebDAV 端口" "5678")}"
   alist_port="${HIMEDIAX_XIAOYA_ALIST_PORT:-$(prompt "小雅管理端口" "2345")}"
   alist_tls_port="${HIMEDIAX_XIAOYA_ALIST_TLS_PORT:-$(prompt "小雅管理 TLS 端口" "2346")}"

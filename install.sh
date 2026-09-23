@@ -22,20 +22,30 @@ prompt() {
   local default_value="${2:-}"
   local value
   if [[ -n "${default_value}" ]]; then
-    read -r -p "${label} [${default_value}]: " value
+    read_prompt "${label} [${default_value}]: "
+    value="${REPLY}"
     printf '%s' "${value:-${default_value}}"
     return
   fi
-  read -r -p "${label}: " value
-  printf '%s' "${value}"
+  read_prompt "${label}: "
+  printf '%s' "${REPLY}"
+}
+
+# 管道执行脚本时，标准输入被 curl 消耗；有交互终端时必须从 /dev/tty 读取用户回答。
+read_prompt() {
+  local message="$1"
+  if [[ -r /dev/tty ]]; then
+    read -r -p "${message}" REPLY </dev/tty
+  else
+    read -r -p "${message}" REPLY
+  fi
 }
 
 confirm() {
   local message="$1"
-  local answer
   [[ "${HIMEDIAX_ASSUME_YES:-0}" == "1" ]] && return 0
-  read -r -p "${message} [y/N]: " answer
-  [[ "${answer}" =~ ^[Yy]$ ]]
+  read_prompt "${message} [y/N]: "
+  [[ "${REPLY}" =~ ^[Yy]$ ]]
 }
 
 valid_ipv4() {

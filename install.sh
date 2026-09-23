@@ -189,8 +189,8 @@ wait_http_service() {
 verify_himediax_url() {
   local url="${1%/}"
   valid_http_url "${url}" || return 1
-  curl --connect-timeout 3 --max-time 8 -fsS "${url}/api/health/live" | grep -q '"alive"' || return 1
-  curl --connect-timeout 3 --max-time 8 -fsS "${url}/api/health/ready" | grep -q '"ready"' || return 1
+  curl --connect-timeout 3 --max-time 8 -fsS "${url}/api/health/live" 2>/dev/null | grep -q '"alive"' || return 1
+  curl --connect-timeout 3 --max-time 8 -fsS "${url}/api/health/ready" 2>/dev/null | grep -q '"ready"' || return 1
 }
 
 wait_himediax_ready() {
@@ -369,10 +369,11 @@ install_himediax() {
 
   docker compose --env-file "${env_file}" -f "${compose_file}" pull
   docker compose --env-file "${env_file}" -f "${compose_file}" up -d
-  wait_himediax_ready "http://127.0.0.1:${http_port}" || fail "HiMediaX 健康检查失败"
+  if ! verify_himediax_url "http://127.0.0.1:${http_port}"; then
+    echo "警告：HiMediaX 容器已创建，但服务尚未 ready；安装继续，稍后可由 Controller 自动重试。" >&2
+  fi
   if [[ -n "${public_host}" ]]; then
     himediax_url="http://${public_host}:${http_port}"
-    verify_himediax_url "${himediax_url}" || fail "小雅控制器无法通过 ${himediax_url} 访问 HiMediaX"
   else
     himediax_url="http://127.0.0.1:${http_port}"
   fi
@@ -436,9 +437,7 @@ install_controller() {
   local controller_token=""
 
   [[ -n "${xiaoya_container}" && -n "${xiaoya_dir}" && -n "${xiaoya_webdav_port}" ]] || fail "小雅尚未通过安装验证"
-  if [[ -z "${himediax_url}" ]] || ! verify_himediax_url "${himediax_url}"; then
-    fail "HiMediaX 服务尚未通过验证"
-  fi
+  [[ -n "${himediax_url}" ]] || fail "HiMediaX 服务地址尚未生成"
   [[ -f "${compose_file}" ]] || fail "未找到小雅控制器 Compose 文件"
   controller_port="${HIMEDIAX_CONTROLLER_PORT:-$(prompt "小雅控制器端口" "19090")}"
   valid_port "${controller_port}" || fail "小雅控制器端口无效"

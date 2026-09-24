@@ -14,7 +14,7 @@
 ```bash
 sudo mkdir -p /srv/himediax
 cd /srv/himediax
-curl -fsSL https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh | sudo bash
+curl -fsSL https://proxy.151513.xyz/raw.githubusercontent.com/iceqi/hi-media-x-installer/main/install.sh | sudo bash
 ```
 
 安装脚本会下载最新 Compose 模板，并提供以下菜单：
@@ -42,6 +42,8 @@ Controller 启动时向 `POST /api/v1/controller/register` 提交自身公开地
 - `./xiaoya/xiaoya.env`：小雅容器、数据目录和端口；小雅数据根目录默认就是 `./xiaoya/`，不会额外拼接一层 `data`。
 
 环境文件权限为 `0600`。重新运行安装脚本时会复用已有的随机密钥。
+
+主程序默认端口为：管理 `18080`、WebDAV `18081`、TVBox `18082`、播放反代 `18096`。TVBox 管理页创建令牌后，会生成带令牌的远程配置地址供客户端导入。
 
 ## 健康检查
 

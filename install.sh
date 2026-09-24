@@ -4,7 +4,7 @@ set -euo pipefail
 
 # HiMediaX 公开安装入口：安装资产始终从公开仓库下载，不依赖私有源码。
 script_dir="$(pwd -P)"
-raw_base="https://raw.githubusercontent.com/iceqi/hi-media-x-installer/main"
+raw_base="https://proxy.151513.xyz/raw.githubusercontent.com/iceqi/hi-media-x-installer/main"
 env_tmp=""
 service_host=""
 xiaoya_container=""
@@ -329,11 +329,12 @@ install_himediax() {
   local http_port="${HIMEDIAX_HTTP_PORT:-$(prompt "HiMediaX 管理端口" "18080")}"
   local webdav_port="${HIMEDIAX_WEBDAV_PORT:-$(prompt "HiMediaX WebDAV 端口" "18081")}"
   local proxy_port="${HIMEDIAX_PROXY_PORT:-$(prompt "HiMediaX 播放反代端口" "18096")}"
+  local tvbox_port="${HIMEDIAX_TVBOX_PORT:-$(prompt "HiMediaX TVBox 服务端口" "18082")}"
   local env_file="${install_dir}/himediax.env"
   local jwt_secret=""
 
   [[ "${install_dir}" = /* && "${data_dir}" = /* && "${library_dir}" = /* ]] || fail "HiMediaX 安装和数据目录必须是绝对路径"
-  if ! valid_port "${http_port}" || ! valid_port "${webdav_port}" || ! valid_port "${proxy_port}"; then
+  if ! valid_port "${http_port}" || ! valid_port "${webdav_port}" || ! valid_port "${proxy_port}" || ! valid_port "${tvbox_port}"; then
     fail "HiMediaX 端口无效"
   fi
   [[ -f "${compose_file}" ]] || fail "未找到 HiMediaX Compose 文件"
@@ -361,6 +362,7 @@ install_himediax() {
   write_env HIMEDIAX_HTTP_PORT "${http_port}"
   write_env HIMEDIAX_WEBDAV_PORT "${webdav_port}"
   write_env HIMEDIAX_PROXY_PORT "${proxy_port}"
+  write_env HIMEDIAX_TVBOX_PORT "${tvbox_port}"
   write_env HIMEDIAX_JWT_SECRET "${jwt_secret}"
   write_env HIMEDIAX_IMAGE_REGISTRY "${HIMEDIAX_IMAGE_REGISTRY:-docker.io}"
   mv -f "${env_tmp}" "${env_file}"
